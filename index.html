@@ -156,7 +156,7 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 
 naver.maps.Event.addListener(map, "bounds_changed", function(bounds) {
 	if(request!=true){
-		console.log("map.getCenter() : " + map.getCenter());
+		//console.log("map.getCenter() : " + map.getCenter());
 		
 		//거리 얼마 차이 안날때 호출 여부 추가해야됨
 		fetchInfo(map.getCenter().lat(),map.getCenter().lng());
