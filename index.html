@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="ko">
 <head>
+	<title>공공마스크 재고</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, shrink-to-fit=no">
@@ -75,10 +76,11 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 
 
 	function fetchInfo(lat,lng){
+		var range = "1000";//추후 가변으로
 		//https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=37.35148745671425&lng=127.09941276992592&m=3000
 		const URL = 'https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?';
 
-		var urlParam= "lat=" + lat + "&lng=" + lng + "&m=1200";
+		var urlParam= "lat=" + lat + "&lng=" + lng + "&m=" + range;
 
 		const dupleChker = new Set();
 		fetch(URL+urlParam)
@@ -98,11 +100,16 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 			dupleChker.add(store.code);
 		}
 		
+		
+		
+
 		var contentString = [
 			'<div class="iw_inner">',
 			'   <h3>'+store.name+'</h3>',
 			'   <p>'+store.addr+'<br />',
 			'  남은정도 : '+store.remain_stat+'<br>',
+			'  입고시간 : '+store.stock_at+'<br>',
+			'  생성일자 : '+store.created_at+'<br>',
 			'   </p>',
 			'</div>'
 		].join('');
@@ -113,24 +120,33 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 
 		//"remain_stat": "empty","plenty","few","some"
 		var color="";
+		var remain_text="";
 		switch(store.remain_stat){
 		case 'plenty':
 			color = "green";
+			remain_text = "충분(100~)";
 			break;
-		case 'few':
 		case 'some':
 			color = 'yellow';
+			remain_text = "보통(99~30)";
+			break;
+		case 'few':
+			color = 'red';
+			remain_text = "부족(29~2)";
 			break;
 		default:
-			color = 'red';
+			color = 'gray';
+			remain_text = "없음(1~0)";
 		}
 
 			var localMarker = new naver.maps.Marker({
 				position: new naver.maps.LatLng(store.lat, store.lng),
 				icon: {
 			content: [
-						'<div class="cs_mapbridge" style="width:20px;height:20px;background:' + color + '">',
+//						'<div class="cs_mapbridge" style="width:20px;height:20px;background:' + color + '">',
+						'<div class="cs_mapbridge" style="background:' + color + '">',
 							'<div class="map_group _map_group crs">',
+							'<span>'+ remain_text +'</span>',
 							'</div>',
 						'</div>'
 					].join(''),
