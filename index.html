@@ -105,6 +105,7 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 		}else if(map.zoom<=14){
 			range = "5000";
 		}else if(map.zoom<=10){
+			request = false;
 			return ;
 		}
 		
@@ -200,7 +201,6 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 
 
 naver.maps.Event.addListener(map, "dragend", function(bounds) {
-	console.log("map.zoom : " + map.zoom);
 	if(request!=true){
 		fetchInfo(map.getCenter().lat(),map.getCenter().lng());
 		request = true;
