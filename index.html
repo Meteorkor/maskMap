@@ -34,6 +34,7 @@
 <script id="code">
 
 var request = false;
+var init = false;
 
 //지도를 삽입할 HTML 요소 또는 HTML 요소의 id를 지정합니다.
 var mapDiv = document.getElementById('map'); // 'map'으로 선언해도 동일
@@ -59,7 +60,10 @@ var mapDiv = document.getElementById('map'); // 'map'으로 선언해도 동일
 		  }
 
 var map = new naver.maps.Map(mapDiv,{
-center: initCenter
+	center: initCenter,
+	scaleControl: false,
+	zoomControl: true,
+	logoControl: false
 });
 
 naver.maps.Event.once(map, 'init_stylemap', function() {
@@ -82,17 +86,28 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 			  timeout: Infinity
 			});
 		  } else {
+			map.setCenter(map.getCenter());
 			//alert('GPS를 지원하지 않습니다');
 		  }
-	
-        //map.setCenter(new naver.maps.LatLng(37.3595953, 127.1053971));
     });
 });
-
-
 	function fetchInfo(lat,lng){
 		var store;
 		var range = "1000";//추후 가변으로
+		if(map.zoom<=22){
+			range = "500";
+		}else if(map.zoom<=20){
+			range = "1000";
+		}else if(map.zoom<=18){
+			range = "2000";
+		}else if(map.zoom<=16){
+			range = "3000";
+		}else if(map.zoom<=14){
+			range = "5000";
+		}else if(map.zoom<=10){
+			return ;
+		}
+		
 		//https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?lat=37.35148745671425&lng=127.09941276992592&m=3000
 		const URL = 'https://8oi9s0nnth.apigw.ntruss.com/corona19-masks/v1/storesByGeo/json?';
 
@@ -116,9 +131,6 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 			dupleChker.add(store.code);
 		}
 		
-		
-		
-
 		var contentString = [
 			'<div class="iw_inner">',
 			'   <h3>'+store.name+'</h3>',
@@ -187,16 +199,23 @@ var locationBtnHtml = '<a href="#" class="btn_mylct"><span class="spr_trff spr_i
 	}
 
 
-naver.maps.Event.addListener(map, "bounds_changed", function(bounds) {
+naver.maps.Event.addListener(map, "dragend", function(bounds) {
+	console.log("map.zoom : " + map.zoom);
 	if(request!=true){
-		//console.log("map.getCenter() : " + map.getCenter());
-		
-		//거리 얼마 차이 안날때 호출 여부 추가해야됨
 		fetchInfo(map.getCenter().lat(),map.getCenter().lng());
 		request = true;
 	}
 	
 });
+naver.maps.Event.addListener(map, "center_changed", function(bounds) {
+	if(init!=true){
+		fetchInfo(map.getCenter().lat(),map.getCenter().lng());
+		init = true;
+	}
+	
+});
+
+
 </script>
 </body>
 </html>
